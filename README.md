@@ -11,6 +11,7 @@ See `store.ts` for zustand store config
 - ReactJS
 - TailwindCSS
 - Zustand
+- Framer Motion
 
 ## How to initialise
 
