@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { Task } from "./components/Task";
 
 interface Todo {
@@ -37,4 +38,9 @@ const store = (set: any) => ({
   },
 });
 
-export const useStore = create<Todo>(store);
+export const useStore = create<Todo>(
+  // @ts-ignore
+  persist(store, {
+    name: "todo-storage",
+  })
+);
