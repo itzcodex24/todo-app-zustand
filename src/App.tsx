@@ -1,8 +1,11 @@
 import Box from "./components/Box";
 import { motion } from "framer-motion";
+import { useStore } from "./store";
+import Modal from "./components/Modal";
 
 function App() {
   const boxTitles = ["TODO", "DOING", "DONE"];
+  const isModalOpen = useStore((state) => state.modalOpen[0]);
 
   return (
     <>
@@ -24,9 +27,12 @@ function App() {
         initial="hidden"
         animate="visible"
       >
-        {boxTitles.map((t) => (
-          <Box title={t} />
-        ))}
+        <>
+          {isModalOpen && <Modal />}
+          {boxTitles.map((t, i) => (
+            <Box title={t} key={i} />
+          ))}
+        </>
       </motion.div>
     </>
   );

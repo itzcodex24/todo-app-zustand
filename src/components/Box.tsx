@@ -9,19 +9,11 @@ import { AnimatePresence, motion } from "framer-motion";
 function Box({ title }: { title: string }) {
   const [isTaskOver, setIsTaskOver] = useState<boolean>(false);
   const tasks = useStore((state) => state.tasks);
-  const addTask = useStore((state) => state.addTask);
   const setDraggedTask = useStore((state) => state.setDraggedTask);
   const moveTask = useStore((state) => state.moveTask);
   const draggedTask = useStore((state) => state.taskDragged);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState<boolean>(true);
-
-  useEffect(() => {
-    window.addEventListener("keydown", (e) => {
-      console.log("e.key", e.key);
-      if (e.key === "Escape" && isOpen) setIsOpen(false);
-    });
-  }, [isOpen]);
+  const setModal = useStore((state) => state.setModal);
 
   const filtered = useMemo(() => {
     return tasks.filter((t: any) => t.status === title);
@@ -29,19 +21,6 @@ function Box({ title }: { title: string }) {
 
   return (
     <>
-      {isOpen && (
-        <AnimatePresence mode="wait">
-          <Modal
-            addTask={(taskTitle) => {
-              addTask({
-                title: taskTitle,
-                status: title,
-              });
-              setIsOpen(false);
-            }}
-          />
-        </AnimatePresence>
-      )}
       <motion.div
         variants={{
           hidden: {
@@ -55,7 +34,7 @@ function Box({ title }: { title: string }) {
         }}
         onAnimationStart={() => setIsAnimating(true)}
         onAnimationComplete={() => {
-          setTimeout(() => setIsAnimating(false), 1000);
+          setIsAnimating(false);
         }}
         className={`aspect-square w-96 bg-violet-400 rounded-md border-2 border-transparent border-dashed ${
           isTaskOver && "border-white"
@@ -65,7 +44,7 @@ function Box({ title }: { title: string }) {
           <span>{title}</span>
           <button
             className="aspect-square rounded bg-violet-600 flex justify-center items-center p-1"
-            onClick={() => setIsOpen(true)}
+            onClick={() => setModal(true, title)}
           >
             <FontAwesomeIcon icon={faPlus} />
           </button>

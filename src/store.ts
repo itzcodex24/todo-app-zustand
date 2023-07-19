@@ -9,6 +9,8 @@ interface Todo {
   taskDragged: string | null;
   setDraggedTask: (title: string | null) => void;
   moveTask: (title: string, status: string) => void;
+  modalOpen: (boolean | string)[];
+  setModal: (open: boolean, title?: string) => void;
 }
 
 const store = (set: any) => ({
@@ -34,6 +36,12 @@ const store = (set: any) => ({
       tasks: state.tasks.map((task: any) =>
         task.title === title ? { ...task, status } : task
       ),
+    }));
+  },
+  modalOpen: [false, ""],
+  setModal: (open: boolean, title?: string) => {
+    set((state: any) => ({
+      modalOpen: [open, title ?? null],
     }));
   },
 });

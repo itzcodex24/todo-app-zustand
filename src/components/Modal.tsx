@@ -1,59 +1,73 @@
-import { useEffect, useState } from "react";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { useStore } from "../store";
+const Modal: React.FC = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const setModal = useStore((state) => state.setModal);
+  const modalState = useStore((state) => state.modalOpen);
 
-function Modal({ addTask }: { addTask: (title: string) => void }) {
-  const [input, setInput] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const addTask = useStore((state) => state.addTask);
 
-  const handleAdd = () => {
-    if (input === "") return setError("Please enter a title");
-    addTask(input);
+  useEffect(() => {
+    const keydownHandler = (event: any) => {
+      if (event.key === "Enter") {
+        console.log(inputRef.current?.value);
+        handleSubmit();
+      }
+
+      if (event.key === "Escape") {
+        setModal(false);
+      }
+    };
+
+    window.addEventListener("keydown", keydownHandler);
+
+    return () => {
+      window.removeEventListener("keydown", keydownHandler);
+    };
+  }, []);
+
+  const handleSubmit = () => {
+    let value = inputRef.current?.value;
+    if (
+      !value ||
+      typeof value !== "string" ||
+      typeof modalState[1] == "boolean"
+    )
+      return setModal(false);
+
+    addTask({ title: value, status: modalState[1] });
+
+    setModal(false);
   };
-
   return (
-    <motion.div
-      className="absolute z-[10] inset-0 w-full min-h-screen flex justify-center items-center bg-[rgba(0,0,0,0.4)]"
-      variants={{
-        exit: {
-          opacity: 0,
-          transition: {
-            duration: 0.2,
-          },
-        },
-        visible: {
-          opacity: 1,
-          transition: {
-            duration: 0.2,
-          },
-        },
-        hidden: {
-          opacity: 0,
-        },
-      }}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-    >
-      <motion.div className="rounded-md w-1/4 h-24 flex justify-center items-center flex-col bg-violet-900 text-white ">
-        <h1 className="text-2xl font-bold mb-2">Enter title</h1>
-        <div className="flex items-center gap-x-1">
-          <input
-            className="rounded pl-2 outline-none border-none text-white bg-violet-500"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            autoFocus
-          />
-          <button
-            className="px-4 border border-white rounded-md"
-            onClick={handleAdd}
-          >
-            Add
-          </button>
-        </div>
-        {error && <p className="text-red-500">{error}</p>}
-      </motion.div>
+    <motion.div className="z-[20] w-full absolute inset-0 flex justify-center items-center min-h-screen bg-[rgba(0,0,0,0.8)]">
+      <div className="rounded-md w-1/2 h-72 bg-violet-700 border-2 border-white flex flex-col justify-center items-center gap-y-2 relative">
+        <button
+          className="absolute top-0 right-0 p-2"
+          onClick={() => setModal(false)}
+        >
+          <FontAwesomeIcon icon={faTimes} className="text-white" />
+        </button>
+        <h1 className="text-2xl text-white">
+          Add a new task! <span className="capitalize">{modalState[1]}</span>
+        </h1>
+        <input
+          ref={inputRef}
+          autoFocus
+          className="w-1/2 rounded outline-none hover:outline-none hover:border-none pl-2 text-violet-900"
+        />
+        <button
+          className="mt-4 rounded px-4 py-0.5 border-2 border-white hover:bg-white hover:text-violet-900 bg-violet-600 text-white transition-colors duration-500 ease-in-out"
+          onClick={handleSubmit}
+        >
+          Add Task
+        </button>
+      </div>
     </motion.div>
   );
-}
+};
 
 export default Modal;
